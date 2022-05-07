@@ -51,7 +51,7 @@ public class Advertising {
 			int start = convert(log.substring(0, 8));
 			int end = convert(log.substring(9, 17));
 			for(int i = start; i < end; ++i) {
-				totalSec[i] = 1;
+				totalSec[i] += 1;
 			}
 		}
 
@@ -63,7 +63,7 @@ public class Advertising {
 		long maxSum = currSum;
 		int maxIdx = 0;
 		for(int i = advSec; i < palySec; ++i) {
-			cuurSum = currSum + totalSec[i] - totalSec[i - advSec];
+			currSum = currSum + totalSec[i] - totalSec[i - advSec];
 			if(currSum > maxSum) {
 				maxSum = currSum;
 				maxIdx = i - advSec + 1;
@@ -77,14 +77,17 @@ public class Advertising {
 	
 	public static void main(String[] args) {
 		
-		play_time = ["02:03:55", "99:59:59", "50:00:00"];
-		adv_time = ["00:14:15", "25:00:00", "50:00:00"];
-		logs = [
-			["01:20:15-01:45:14", "00:40:31-01:00:00", "00:25:50-00:48:29", "01:30:59-01:53:29", "01:37:44-02:02:30"]
-			,["69:59:59-89:59:59", "01:00:00-21:00:00", "79:59:59-99:59:59", "11:00:00-31:00:00"]
-			,["15:36:51-38:21:49", "10:14:18-15:36:51", "38:21:49-42:51:45"]
-		]
-		result = ["01:30:59", "01:00:00", "00:00:00"];
+		String[] play_time = {"02:03:55", "99:59:59", "50:00:00"};
+		String[] adv_time = {"00:14:15", "25:00:00", "50:00:00"};
+		String[][] logs = {
+			{"01:20:15-01:45:14", "00:40:31-01:00:00", "00:25:50-00:48:29", "01:30:59-01:53:29", "01:37:44-02:02:30"}
+			,{"69:59:59-89:59:59", "01:00:00-21:00:00", "79:59:59-99:59:59", "11:00:00-31:00:00"}
+			,{"15:36:51-38:21:49", "10:14:18-15:36:51", "38:21:49-42:51:45"}
+		};
+		String[] result = {"01:30:59", "01:00:00", "00:00:00"};
+		
+		System.out.println(solution(play_time[1], adv_time[1], logs[1]));
+		
 
 	} // main
 }
