@@ -1,5 +1,9 @@
 package construction;
 
+import java.util.Arrays;
+
+import com.sun.xml.internal.bind.v2.runtime.unmarshaller.XsiNilLoader.Array;
+
 public class TheConstructionIndustry {
 
 /*
@@ -18,17 +22,13 @@ public class TheConstructionIndustry {
 	다음은 기둥과 보를 설치해 구조물을 만든 예시입니다.
 	
   y축                                                 _ : 보
-	5
-	                      | : 기둥
+	5                     | : 기둥
 	4
-	
 	3
-	
-	2
-	         __  __  __
-	1    __ |           |
-	    |               |
-	0   1   2   3   4   5
+	2       __ __ __
+	1    __|        |
+	    |           |
+	0   1  2  3  4  5
 	                      x축
 	예를 들어, 위 그림은 다음 순서에 따라 구조물을 만들었습니다.
 	>> (1, 0)에서 위쪽으로 기둥을 하나 설치 후, (1, 1)에서 오른쪽으로 보를 하나 만듭니다.
@@ -73,24 +73,60 @@ public class TheConstructionIndustry {
 	public static int[][] solution(int n, int[][] build_frame) {
 		
 		int frameCnt = build_frame.length;
-		int[][] result = new int[frameCnt][];
-		int[][] pointXY = new int[n][n];
+		boolean[][] colPoint = new boolean[n][n];
+		boolean[][] boPoint = new boolean[n][n];
 		
 		for (int i = 0; i < frameCnt; i++) {
-			int px = build_frame[i][0];       // x좌표
-			int py = build_frame[i][1];       // y좌표
-			int colOrBri = build_frame[i][3]; // 기둥 or 보
-			int isBuild = build_frame[i][4];  // 생성-삭제 여부
+			int x = build_frame[i][0];             // x좌표
+			int y = build_frame[i][1];             // y좌표
+			short buildType = (short)build_frame[i][2]; // 기둥 or 보
+			int isBuild = build_frame[i][3];        // 생성-삭제 여부
 			
-			if(isBuild == 1) {
-				pointXY[px][py] = colOrBri;
+			if (isBuild == 1) { // 건설 진행
+				if (buildType==0) colPoint[x][y] = true;
+				else boPoint[x][y] = true;
+			} else {            // 건설 취소
+				if (colPoint[x][y]) colPoint[x][y] = false;
+				else boPoint[x][y] = false;
 			}
 		}
 		
-		for (int i = 0; i < pointXY.length; i++) {
-			
+		int[][] result = new int[frameCnt][3];
+		int reCnt = 0;
+		for (int y = 0; y < n; y++) {
+			for (int x = 0; x < n; x++) {
+				if (!colPoint[x][y] && !boPoint[x][y]) continue;
+				if (y==0) {
+					boPoint[x][0] = false;
+					continue;
+				}
+				int isCol = -1, isBo = -1;
+				int my = (y-1 > 0) ? y-1 : y;
+				int mx = (x-1 > 0) ? x-1 : x;
+				int px = (x+1 < n) ? x+1 : x;
+				
+				if (colPoint[x][y]) 
+					isCol = (boPoint[x][y] || boPoint[mx][y] || colPoint[x][my])?0:-1;
+				if (boPoint[x][y]) {
+					isBo = (colPoint[x][my] || colPoint[px][my] || boPoint[mx][y] || boPoint[px][y])?1:-1;
+				}
+				if (isCol==0) {
+					result[reCnt][0] = x;
+					result[reCnt][1] = y;
+					result[reCnt++][2] = isCol;
+				} 
+				if (isBo==1) {
+					result[reCnt][0] = x;
+					result[reCnt][1] = y;
+					result[reCnt++][2] = isBo;
+				}
+				if (isBo==-1 && isCol ==-1) {
+					result[reCnt][0] = -1;
+					result[reCnt][1] = -1;
+					result[reCnt++][2] = -1;
+				}
+			}
 		}
-		
 		
 		return result;
 	}
@@ -99,7 +135,14 @@ public class TheConstructionIndustry {
 		int[][] build_frame = {{1,0,0,1},{1,1,1,1},{2,1,0,1},{2,2,1,1},{5,0,0,1},{5,1,0,1},{4,2,1,1},{3,2,1,1}};
 		int[][] build_frame2 =
 			{{0,0,0,1},{2,0,0,1},{4,0,0,1},{0,1,1,1},{1,1,1,1},{2,1,1,1},{3,1,1,1},{2,0,0,0},{1,1,1,0},{2,2,0,1}};
-		solution(5, build_frame2);
+		int[][] re = solution(5, build_frame2);
+		
+		for (int i = 0; i < build_frame2.length; i++) {
+			System.out.print(re[i][0]);
+			System.out.print(re[i][1]);
+			System.out.print(re[i][2]);
+			System.out.println();
+		}
 	}
 	
 } // class
